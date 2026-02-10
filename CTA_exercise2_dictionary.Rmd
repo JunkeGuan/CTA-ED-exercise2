@@ -605,5 +605,34 @@ This figure shows the proportion of COVID-related words across tweets published 
 By contrast, outlets such as The Times and The Sun display lower proportions of COVID-related terms. Importantly, these results are based on word-level proportions rather than tweet counts. This means the analysis captures the relative emphasis placed on COVID-19 within each newspaper’s overall output, rather than absolute volume. As a result, the differences should be interpreted cautiously and are dependent on the specific set of keywords included in the dictionary.
 
 3. Apply the Lexicoder Sentiment Dictionary to the news tweets, but break down the analysis by newspaper
+```{r}
+# Create a document-feature matrix from Lexicoder-annotated tokens
+# and group by newspaper (username)
+dfm_news_lsd <- dfm(toks_news_lsd) %>% 
+  dfm_group(groups = username)
+```
+We construct a document-feature matrix from the Lexicoder-annotated tokens and aggregate the counts by newspaper. This allows us to compare overall sentiment across news outlets.
+```{r}
+tidy_dfm_news_lsd <- dfm_news_lsd %>%
+  convert(to = "data.frame") %>%
+  rename(newspaper = doc_id) %>%
+  mutate(sentiment = positive - negative)
+```
+The dfm is converted into a data frame for easier inspection and plotting. We calculate net sentiment by subtracting negative from positive word counts.
+```{r}
+tidy_dfm_news_lsd %>%
+  ggplot() +
+  geom_point(aes(x = reorder(newspaper, -sentiment),
+                 y = sentiment)) +
+  coord_flip() +
+  xlab("Newspaper") +
+  ylab("Overall tweet sentiment (negative to positive)") +
+  theme_minimal()
+```
+This figure shows overall tweet sentiment across eight British newspapers using the Lexicoder Sentiment Dictionary. Sentiment is calculated at the word level and aggregated by newspaper, with net sentiment defined as the difference between positive and negative word counts.
+All newspapers display negative overall sentiment, which is expected given that news reporting—particularly during the early stages of the COVID-19 pandemic—contains a high prevalence of negative or problem-oriented language. However, clear differences can still be observed across outlets.
+Tabloid newspapers such as Daily Mirror, The Sun, and Daily Mail UK show more negative overall sentiment, while newspapers such as The Guardian, The Times, and The Telegraph appear relatively less negative. This suggests that affective tone varies systematically across news sources.
+While the Lexicoder dictionary is well suited for analysing news text, these results should be interpreted with caution, as the analysis is based on aggregate word frequencies and does not account for context or framing within individual tweets.
+
 4. Don't forget to 'knit' to produce your final html output for the exercise.
 
